@@ -83,7 +83,6 @@ export class ProjectsController {
 
      return res.status(HttpStatus.CREATED).json({
       statusCode: HttpStatus.CREATED,
-      // data: updateProject,
       message: `project ${id} is deleted!`,
     });
   }
