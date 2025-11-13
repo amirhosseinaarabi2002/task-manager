@@ -21,8 +21,16 @@ export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
   @Post()
-  create(@Body() createProjectDto: CreateProjectDto) {
-    return this.projectsService.create(createProjectDto);
+  async create(
+    @Body() createProjectDto: CreateProjectDto,
+    @Res() res: express.Response,
+  ) {
+    const createProject = await this.projectsService.create(createProjectDto);
+    return res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      data: createProject,
+      message: 'project is created!',
+    });
   }
 
   @Get()
@@ -36,22 +44,47 @@ export class ProjectsController {
     return res.status(HttpStatus.OK).json({
       statusCode: HttpStatus.OK,
       data: projects,
-      message: "projects are founded!"
-    })
+      message: 'projects are founded!',
+    });
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.projectsService.findOne(+id);
+  async findOne(@Param('id') id: string, @Res() res: express.Response) {
+    const project = await this.projectsService.findOne(+id);
+
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      data: project,
+      message: 'project is founded!',
+    });
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
-    return this.projectsService.update(+id, updateProjectDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateProjectDto: UpdateProjectDto,
+    @Res() res: express.Response,
+  ) {
+    const updateProject = await this.projectsService.update(
+      +id,
+      updateProjectDto,
+    );
+
+    return res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      data: updateProject,
+      message: `project ${id} is updated!`,
+    });
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.projectsService.remove(+id);
+  async remove(@Param('id') id: string, @Res() res: express.Response) {
+    await this.projectsService.remove(+id);
+
+     return res.status(HttpStatus.CREATED).json({
+      statusCode: HttpStatus.CREATED,
+      // data: updateProject,
+      message: `project ${id} is deleted!`,
+    });
   }
 }
