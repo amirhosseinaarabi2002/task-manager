@@ -23,12 +23,18 @@ export class ProjectsService {
     }
   }
 
-  async findAll(status?: projectsStatusEnum) {
+  async findAll(
+    status?: projectsStatusEnum,
+    limit: number = 5,
+    page: number = 1,
+  ) {
     const query = this.projectRepository.createQueryBuilder('projects');
 
     if (status) {
       query.where('status = :x', { x: status });
     }
+
+    query.skip((page - 1) * limit).take(limit);
     return await query.getMany();
   }
 
