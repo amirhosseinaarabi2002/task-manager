@@ -7,11 +7,14 @@ import {
   Param,
   Delete,
   Query,
+  Res,
+  HttpStatus,
 } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import projectsStatusEnum from './enums/projectsStatusEnum';
+import express from 'express';
 
 @Controller('projects')
 export class ProjectsController {
@@ -23,12 +26,18 @@ export class ProjectsController {
   }
 
   @Get()
-  findAll(
+  async findAll(
+    @Res() res: express.Response,
     @Query('status') status?: projectsStatusEnum,
     @Query('limit') limit: number = 5,
     @Query('page') page: number = 1,
   ) {
-    return this.projectsService.findAll(status, limit, page);
+    const projects = await this.projectsService.findAll(status, limit, page);
+    return res.status(HttpStatus.OK).json({
+      statusCode: HttpStatus.OK,
+      data: projects,
+      message: "projects are founded!"
+    })
   }
 
   @Get(':id')

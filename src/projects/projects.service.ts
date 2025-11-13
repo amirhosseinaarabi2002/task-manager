@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -38,15 +42,53 @@ export class ProjectsService {
     return await query.getMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} project`;
+  async findOne(id: number) {
+    const project = await this.projectRepository.findOneBy({ id });
+
+    if (!project) {
+      throw new NotFoundException(`project ${id} not found!`);
+    }
+
+    return project;
   }
 
-  update(id: number, updateProjectDto: UpdateProjectDto) {
-    return `This action updates a #${id} project`;
+  async update(id: number, updateProjectDto: UpdateProjectDto) {
+    const project = await this.projectRepository.findOneBy({ id });
+
+    if (!project) {
+      throw new NotFoundException(`project ${id} not found!`);
+    }
+
+    try {
+      const updateProject = await this.projectRepository.update(
+        id,
+        updateProjectDto,
+      );
+      return updateProject;
+    } catch (error) {
+      throw new BadRequestException('updating project failed!');
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} project`;
+  async remove(id: number) {
+    // const project = await this.projectRepository.findOneBy({ id });
+
+    // if (!project) {
+    //   throw new NotFoundException(`project ${id} not found!`);
+    // }
+
+    // try {
+    //   const removeProject = await this.projectRepository.delete({ id });
+
+    //   return removeProject;
+    // } catch (error) {
+    //   throw new BadRequestException('removing project failed!');
+    // }
+
+    const removeProject = await this.projectRepository.delete({ id })
+
+    if (removeProject.affected === 0) {
+      throw new NotFoundException(`project ${id} not found!`);
+    }
   }
 }
